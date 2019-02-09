@@ -1,0 +1,296 @@
+﻿<!DOCTYPE html>
+
+<meta charset="utf-8">
+
+<!--<meta name="apple-mobile-web-app-capable" content="yes"/>-->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+
+<head>
+    <link rel="stylesheet" href="jquery/jquery.mobile-1.4.3.min.css">
+    <script src="jquery/jquery-1.11.1.min.js"></script>
+    <script src="jquery/jquery.mobile-1.4.3.min.js"></script>    
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular-route.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular-resource.min.js"></script>
+    
+    <script src="bs.js"></script>
+    <link href="fonts/dinot/css/dinot.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="bs.css">
+</head>
+
+<body>
+
+      <div data-role="page" id="homepage" data-theme="d">
+        
+        <div data-role="header" data-tap-toggle="false" data-position="fixed" id="headmargin" >
+
+            <img border="0" src="images/logo.png" alt="MAGNOLIUM" height="50" style="float:right;display:inline"/>
+            <div id="wait">
+                <img src="images/LoadingWheel.gif" height="50px" width="50px" class="cursor"/>
+            </div>
+
+            <div id="hdr-cfg-local" class="cfg-local"></div>
+            <div id="hdr-cfg-remote" class="cfg-remote"></div>
+
+            <div id="action_wait" class="playing" style="visibility: hidden;">
+                <img src="images/LoadingWheel.gif" height="20px" width="20px" class="cursor"/>
+            </div>            
+            <h1><span id="page-title" class="BSD" style="font-weight: normal;font-size: 18px;">BATTLESHIP DOWN</span></h1>
+        </div>
+            
+        <div id="div-header">
+            <span id="header"></span>
+        </div>
+
+        
+
+        <div id="main-canvas" class="tab-content">
+          <ul class="nav nav-tabs">
+              <li id="id_local"><a data-toggle="tab" id="localX" href="#local">FLEET</a></li>
+              <li id="id_remote"><a data-toggle="tab" id="remoteX" href="#remote">HIT LIST</a></li>
+              <li id="id_request"><a data-toggle="tab" id="requestX" href="#request">Request</a></li>
+              <li id="id_active_game"><a data-toggle="tab" id="activeX" href="#active_game">Active Games</a></li>
+              <li id="id_users"><a data-toggle="tab" id="usersX" href="#users">Users</a></li>
+              <li id="id_help"><a data-toggle="tab" id="helpX" href="#help">Help</a></li>
+          </ul>
+
+          <div id="local" class="tab-pane fade in active">
+          </div>
+
+          <div id="data" class="sea"></div>  
+
+          <div id="btn-group" style="float:left;display:inline">
+              <!--
+              <div id="btn-test" class="block publish_btn header-btn" onclick="javascript:btnTest();"><span class="publish_span_btn">TEST</span></div>
+              -->
+              <div id="btn-status" class="block status_btn header-btn" onclick="javascript:gotoHitlist();"><span id="userturn" class="publish_span_btn">Not Playing</span></div>
+              <div id="btn-end-game" class="block publish_btn header-btn" onclick="javascript:btnEndGame();"><span class="publish_span_btn">End Game</span></div>
+              <!--
+              <div id="gamers-dropdown" class="block control header-btn">
+                <select class="gamers-menu" id="gamer-item" name="menu" onchange="javascript:selectRemoteUser();">
+                    <option value="" selected id="no_select">(Select Remote User)</option>
+                </select>
+              </div>     
+              -->         
+              <div id="btn-play-again" class="block publish_btn header-btn" onclick="javascript:btnPlayAgain();"><span class="publish_span_btn">Play Again</span></div>
+              <div id="btn-percentage" class="block status_btn header-btn"><span id="percid" class="publish_span_btn">0</span></div>
+
+          </div>
+
+          <script>
+              var margin = {top: 30, right: 20, bottom: 30, left: 20},
+                  width = 600 - margin.left - margin.right,
+                  height = 500 - margin.top - margin.bottom,
+                  barHeight = 20,
+                  barWidth = width * .8;
+
+              var i = 0,
+                  duration = 400,
+                  root;
+
+              var tree = d3.layout.tree()
+                  .nodeSize([0, 20]);
+
+              var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
+
+              var svg = d3.select("#data").append("svg")
+                  .attr("width", getViewport()[0])
+                  .attr("height", 540)
+                  .append("g")
+                  .attr("transform", "translate(5,5)");
+
+              var root = {},
+                  nodes = tree(root);
+
+              root.parent = root;
+              root.px = root.x;
+              root.py = root.y;
+
+              var node = svg.selectAll(".node"),
+                  link = svg.selectAll(".link");
+
+              function getViewport() 
+              {
+                   var viewPortWidth;
+                   var viewPortHeight;
+
+                   // the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
+                   if (typeof window.innerWidth != 'undefined') {
+                     viewPortWidth = window.innerWidth,
+                     viewPortHeight = window.innerHeight
+                   }
+
+                  // IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document)
+                   else if (typeof document.documentElement != 'undefined'
+                   && typeof document.documentElement.clientWidth !=
+                   'undefined' && document.documentElement.clientWidth != 0) {
+                      viewPortWidth = document.documentElement.clientWidth,
+                      viewPortHeight = document.documentElement.clientHeight
+                   }
+
+                   // older versions of IE
+                   else {
+                     viewPortWidth = document.getElementsByTagName('body')[0].clientWidth,
+                     viewPortHeight = document.getElementsByTagName('body')[0].clientHeight
+                   }
+                   //console.log("viewport:", viewPortWidth, viewPortHeight);
+                   return [viewPortWidth, viewPortHeight];
+              }
+          </script>
+
+          <div id="remote" class="tab-pane">
+          </div>
+
+          <div id="request" class="tab-pane">
+            <div id="request-tab" class="users" style="float:left;display:inline">
+              
+            </div>  
+          </div>
+
+          <div id="active_game" class="tab-pane">
+            <div id="game-tab" class="users" style="float:left;display:inline">
+              
+            </div>  
+          </div>
+
+          <div id="users" class="tab-pane">
+          
+            <div id="users-tab" class="users" style="float:left;display:inline">
+              <div id="users-ang" ng-app="myApp">
+                  <div class="inbox" ng-controller="MainCtrl">
+                    <div class="categories">
+                      <br>
+                      <input type="text" ng-model="myModel" placeholder="Enter username" />
+                      <ul>
+                        <li ng-class="{hide_user: cat.status === 'INPLAY'}" ng-repeat="cat in categories | filter:listArtists( myModel )">
+                            {{cat.game_id}}
+                          <a ng-click="requestUser($index, cat.status)" href=""><img src="images/play.png"></a>
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+              </div>
+            </div>  
+          
+          </div>
+
+          <div id="help" class="tab-pane">
+            <div id="help-tab" class="users" style="float:left;display:inline">
+              <p>
+                <div id="help_text" class="help_font">
+                To start a game click on the <b>Users</b> tab at the top 
+                and select a player from the list by clicking on their play button.<a><img src="images/play.png"></a><br><br>
+
+                That selected user will see a request from you in the <b>Requests</b> tab.<br><br>
+                The requested user clicks on the <b>Request Tab</b> and clicks the button with your username.<br><br>
+                The game will start once each player selects the oppositions username from the <b>Active Games</b> tab.<br><br>
+                The user that started the game is known as the Issuer and only the Issuer can end a game.<br><br>
+                To end a game the user only has to click on the <a><img src="images/end_game.png"></a> button.<br><br>
+                If the Issuer ends a game the opposition will be prompted with a Yes/No confirmation prompt. The recipient can then choose whether to play again or quit the game.<br><br>
+                The winner of the game is given ther choice to play again.<br><br>
+                To play again click the <a><img src="images/play_again.png"></a> button.<br><br>
+                The score count tells the player how many parts of a ship it has hit and how many parts are remaining.<br><br>
+                Ships are randomnly made up of 3,4 and 5 parts and there are six ships on the gameboard.<br><br>
+                When the status changes to <a><img src="images/your_turn.png"></a> you can click on the hitboard".<br><br>
+                When the status changes to <a><img src="images/their_turn.png"></a> the hitboard will be disabled and you will have to wait.<br><br>
+                You will hear a <i>PING</i> when it's your turn to move.<br><br>
+                You will hear a small explosion when you hit part of a ship.<br><br>
+                You will hear a large explosion when you sink a battleship.<br><br>
+                All sunken ships will disappear from the sea view.<br><br>
+
+                <b> <u>MOBILES / KINDLES / TABLETS</u></b><br>
+                When playing on any of these devices you will have to 
+                click on the <b>HIT LIST</b> to change the screen back to the hit list before you can drop a bomb.<br><br>
+                If any of your ships get hit by the opposition the screen will automatically change over to the FLEET view.<br><br>
+                You can also click on <a><img src="images/your_turn.png"><img src="images/their_turn.png"></a> to change the view back to the hit list.<br>
+              </div>
+              </p>
+              <div id="fleet">
+                <div id="fleet-title">
+                  <b>THE FLEET</b>
+                </div>
+                <div id="ships">
+                  <a><img src="images/fleet.png"></a>
+                </div>
+              </div>
+            </div>  
+          </div>
+
+
+        </div>
+
+      </div>    
+
+      <!-- The Modal -->
+      <div id="loginModal" class="modal">
+        <div id="loginForm" class="modal-content-ani">
+          <p>Please enter a username and password:</p>
+          <div class="login-edit">
+              <form id="loginid">
+                  <div class="input-group">
+                      <div id="base_input" class="form-group">
+                          <input  type="text" class="form-control" placeholder="username" id="login_username" value=""><br>
+                          <input  type="password" class="form-control" placeholder="password" id="login_password" value=""><br>
+                          <div id="btn-row" style="height:100%;float:center;display:inline">
+                            <div id="btn-submit-1" class="block publish_btn" onclick="javascript:validateLogin('NEW');"><span id="span-submit-1" class="login_span_btn">New</span></div>
+                            <div id="btn-submit-2" class="block publish_btn" onclick="javascript:validateLogin('EXISTS');"><span id="span-submit-2" class="login_span_btn">Already Exist</span></div>
+                          </div>
+                          <div id="messageid" class="msg"></div>
+                      </div>
+                  </div>
+              </form>
+          </div>
+        </div>
+      </div>
+
+      <div id="playAgainModal" class="modal">
+        <div id="playAgainForm" class="modal-content-ani">
+          <p>Do you want another game?</p>
+          <div class="playagain-edit">
+              <form id="playagainid">
+                <div class="form-group">
+                    <div id="btn-row" style="height:100%;float:center;display:inline">
+                      <div id="btn-submit" class="block publish_btn" onclick="javascript:confirm('YES');"><span class="login_span_btn">Yes</span></div>
+                      <div id="btn-submit" class="block publish_btn" onclick="javascript:confirm('NO');"><span class="login_span_btn">No</span></div>
+                    </div>
+
+                </div>
+              </form>
+          </div>
+        </div>
+      </div>
+
+<script type="text/javascript">
+
+    var button = document.getElementById("button");
+    //button.addEventListener("click", confirm(button), false);
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      var target = $(e.target).attr("href") // activated tab
+      OnSelectedTab(target.substring(1));
+    });
+
+</script>
+
+<audio id="sound-effects-1" styles="visibility:hidden">
+  Your browser does not support the audio element.
+</audio>
+<audio id="sound-effects-2" styles="visibility:hidden">
+  Your browser does not support the audio element.
+</audio>
+<audio id="sound-effects-3" styles="visibility:hidden">
+  Your browser does not support the audio element.
+</audio>
+<audio id="sound-effects-4" styles="visibility:hidden">
+  Your browser does not support the audio element.
+</audio>
+</body>
+
+

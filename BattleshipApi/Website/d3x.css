@@ -1,0 +1,87 @@
+/*CSS*/ 
+
+#homepage {
+    background-color: #efe9e9;
+}
+
+.node {
+    position:initial;
+    left: 0px;
+    top:  2px;
+}
+
+#maintable {
+    border:medium;
+}
+
+.lines {
+    position:relative;
+    left: 0px;
+    top:  1px;
+    background-color: #ffffff;
+    z-index: 4;
+}
+
+#div1 {
+    position:absolute;
+    background-color: #ffffff;
+    left: 0px;
+    top:  200px;
+    width: 350px;
+    height: 70px;
+    padding: 10px;
+    border: 1px solid #aaaaaa;
+}
+
+.italic {
+    font-weight:normal;
+    font-style:italic;
+    color: blue;
+}
+
+.csurveys
+ {
+    width: 80px;
+ }
+
+#header {
+    position:absolute;
+    left: 10px;
+    top:  5px;
+    font-weight:bold;
+    font-size: 16px;
+    font-family:'Arial Unicode MS';
+}
+
+#surveys {
+    position:absolute;
+    left: 10px;
+}
+
+.svg-image {
+    background-color:transparent;
+}
+
+.views {
+    background-color: green;
+    color:yellow;
+}
+
+.node rect {
+  cursor: pointer;
+  fill: #fff;
+  fill-opacity: .5;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+path.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+}

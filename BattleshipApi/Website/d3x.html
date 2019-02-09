@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8">
+
+    <!--<meta name="apple-mobile-web-app-capable" content="yes"/>-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+
+    <link rel="stylesheet" href="jquery/jquery.mobile-1.4.3.min.css">
+    <!--<link rel="stylesheet" href="themes/tgi.min.css" />-->
+    <link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="bootstrap/bootstrap.css" />
+    <link rel="stylesheet" href="d3x.css">
+
+    <script src="jquery/jquery-1.11.1.min.js"></script>
+    <script src="jquery/jquery.mobile-1.4.3.min.js"></script>
+    <script src="bootstrap/bootstrap.js"></script>
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="jquery/d3.js"></script>
+
+    <link href="fonts/dinot/css/dinot.css" rel="stylesheet" type="text/css" />
+
+    <link href="css/fonts.css" rel="stylesheet" type="text/css" />
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <link href="css/map.css" rel="stylesheet" type="text/css" />
+
+    <script src="d3x.js"></script>
+
+<body style="background-color:#FFFFFF">
+<div id="homepage">
+    <div id="srv" class="survey"></div>    
+    <div id="data" class="dictionary"></div>    
+
+    <script>
+    var s_margin = { top: 30, right: 20, bottom: 30, left: 20 },
+        s_width = 700 - s_margin.left - s_margin.right,
+        s_barHeight = 20,
+        s_barWidth = s_width * .8;
+
+    var s_i = 0,
+        s_duration = 400,
+        s_root;
+
+    var s_tree = d3.layout.tree().nodeSize([0, 20]);
+
+    var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
+
+    var s_svg = d3.select("#srv").append("svg")
+        .attr("width", s_width + s_margin.left + s_margin.right)
+        .append("g")
+        .attr("transform", "translate(" + s_margin.left + "," + s_margin.top + ")");
+
+    var s_root = {},
+        s_nodes = s_tree(s_root);
+
+    s_root.parent = s_root;
+    s_root.px = s_root.x;
+    s_root.py = s_root.y;
+
+    var s_node = s_svg.selectAll(".node"),
+        s_link = s_svg.selectAll(".link");
+
+    </script>
+
+
+    <script>
+        var d_margin = { top: 30, right: 20, bottom: 30, left: 20 },
+            d_width = 700 - d_margin.left - d_margin.right,
+            d_barHeight = 20,
+            d_barWidth = d_width * .8;
+
+    var d_i = 0,
+        d_duration = 400,
+        d_root;
+
+    var d_tree = d3.layout.tree()
+        .nodeSize([0, 20]);
+
+    var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
+
+    var d_svg = d3.select("#data").append("svg")
+        .attr("width", d_width + d_margin.left + d_margin.right)
+      .append("g")
+        .attr("transform", "translate(" + d_margin.left + "," + d_margin.top + ")");
+
+    var d_root = {},
+        d_nodes = d_tree(d_root);
+
+    d_root.parent = d_root;
+    d_root.px = d_root.x;
+    d_root.py = d_root.y;
+
+    var d_node = d_svg.selectAll(".node"),
+        d_link = d_svg.selectAll(".link");
+
+    </script>
+
+</div>    
+
+
+
+
+
+</body>

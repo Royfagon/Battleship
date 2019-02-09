@@ -1,5 +1,3 @@
-Simple Battleship game that uses AngularJS, D3 Visualizaion, Javascript with RESTful API calls.
-
 GAME INSTRUCTIONS
 -----------------
 To start a game click on the Users tab at the top 
